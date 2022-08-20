@@ -15,16 +15,17 @@ class Dice:
 
     def __eq__(self, other: object) -> bool:
         """
+        - この関数は，Dice object同士を==で比較した時に呼ばれる
         - 回転させて同じになるものも同じとみなす．
         - 全探索して一致判定するので計算量はO(6*4) = O(1)
         """
         for pos in ["top", "front", "right", "left", "back", "bottom"]:
-            copy_dice = self.get_copy_dice()
-            copy_dice.set_state(pos)
+            dice = self.get_copy_dice()
+            dice.set_top_state(pos)
             for order in ["H", "H", "H", "H", "H"]:
-                if copy_dice.get_state() == other.get_state():
+                if dice.get_state() == other.get_state():
                     return True
-                copy_dice.rot(order)
+                dice.rot(order)
         return False
 
     def get_copy_dice(self) -> object:
@@ -62,10 +63,10 @@ class Dice:
             self.__state["left"] = prev.__state["front"]
             self.__state["right"] = prev.__state["back"]
         else:
-            print(f"\n[Error] @Dice/rot() -> argument error. arg:{order}\n")
+            raise ValueError
         return
 
-    def set_state(self, pos: str) -> None:
+    def set_top_state(self, pos: str) -> None:
         """ posの位置がtopとなるように回転させる """
         if pos == "top":
             pass
@@ -81,7 +82,7 @@ class Dice:
             self.rot("N")
             self.rot("N")
         else:
-            print(f"\n[Error] @Dice/set_state() -> argument error. arg:{pos}\n")
+            raise ValueError
         return
 
 
@@ -101,7 +102,7 @@ def main() -> None:
     #     for k, v in copy_dice.get_state().items():
     #         # state[k]=v=topとなるkを探す
     #         if v == top:
-    #             copy_dice.set_state(k)
+    #             copy_dice.set_top_state(k)
     #             break
     #     for order in ["H", "H", "H", "H"]:
     #         # topを固定して水平回転させる
@@ -119,7 +120,7 @@ def main() -> None:
     """ D """
     n = int(input())
     dices = [list(map(int, input().split())) for _ in range(n)]
-    index_pairs = list(itertools.combinations([i for i in range(n)], 2))
+    index_pairs = itertools.combinations(range(n), 2)
     for i, j in index_pairs:  # O(n^2)
         if Dice(dices[i]) == Dice(dices[j]):
             print("No")
